@@ -7,6 +7,14 @@ class Admin(page.Page):
 	needsAdmin = True
 
 	class Reload(page.Page):
+		class All(page.Page):
+			needsAdmin = True
+			def run(self, request, args, output):
+				Admin.Reload.Config().run(request,args,output)
+				Admin.Reload.HTTP().run(request,args,output)
+				Admin.Reload.Plugins().run(request,args,output)
+				Admin.Reload.IRC().run(request,args,output)
+
 		class HTTP(page.Page):
 			needsAdmin = True
 			def run(self, request, args, output):
@@ -34,6 +42,7 @@ class Admin(page.Page):
 			self.putChild('plugins',self.Plugins())
 			self.putChild('irc',self.IRC())
 			self.putChild('config',self.Config())
+			self.putChild('all',self.All())
 
 	def run(self, request, args, output):
 		output['admin_functions'] = {
