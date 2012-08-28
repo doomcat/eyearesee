@@ -19,3 +19,6 @@ local.properties
 *.pyc
 *.pyo
 eyearebin.zip
+
+# vim .swp files
+*.swp
