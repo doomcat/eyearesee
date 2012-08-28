@@ -11,8 +11,8 @@ pypy -m compileall ./
 echo "Adding to eyearebin.zip..."
 zip -0 -r ../eyearebin.zip *
 
-echo "Removing .pyc files..."
-find -name "*.pyc" | xargs rm
+echo "Removing .pyc/.pyo files..."
+find -name "*.py[c|o]" | xargs rm
 
 cd ..
 

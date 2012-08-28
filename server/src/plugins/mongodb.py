@@ -1,6 +1,7 @@
 import pymongo
 import eyearelib.logger as log
 import traceback
+import config
 
 __instance = None
 
@@ -50,7 +51,15 @@ class InMemory:
 
 class Database:
 	def __init__(self):
-		self.connection = pymongo.Connection()
+		try:
+			host = config.MONGO_HOST
+		except AttributeError:
+			host = 'localhost'
+		try:
+			port = config.MONGO_PORT
+		except AttributeError:
+			port = 27017
+		self.connection = pymongo.Connection(host,port)
 		self.db = self.connection.eyearesee
 		self.users = InMemory(self.connection.eyearesee.users)
 		self.events = self.connection.eyearesee.events

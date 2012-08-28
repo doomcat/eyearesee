@@ -11,9 +11,12 @@ READ_ONLY=["eyearesee"]
 
 import eyearelib.handler, plugins.funkyhandler
 EVENT_HANDLERS=[
-	eyearelib.handler,
 	plugins.funkyhandler,
 ]
 
 import plugins.mongodb
 DATABASE_HANDLER=plugins.mongodb
+
+# Edit these if your mongodb is on a remote server
+MONGO_HOST='localhost'
+MONGO_PORT=27017

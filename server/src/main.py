@@ -1,4 +1,4 @@
-#!/usr/bin/python -OO
+#!/usr/bin/pypy -OO
 import config
 
 import sys, traceback
