@@ -1,0 +1,45 @@
+eyearesee classes
+------------------------------------------------------------------------------
+
+Database:
+	def get(request)
+	def set(request,data)
+	def delete(request)
+
+Authenticator:
+	def login(user,password)
+	def register(user,password)
+
+Event:
+	self.timestamp = 0.0
+	self.event = "message"
+	self.nicks = []
+	self.server = "irc.aberwiki.org"
+	self.channel = "#eyearesee"
+	self.data = "Default test message"
+
+Handler:
+	def event(self,type,user,server,channel,nicks,data)
+
+Connection:
+	self.handlers = [{DefaultHandler},{CustomHandler},..]
+	self.user = "owain"
+	self.server = "irc.aberwiki.org"
+	self.factory
+
+	def event(self,type,user,server,channel,nicks,data)
+
+User:
+	self.token
+	self.hash
+	self.permissions = 0b0011 #login, write
+	self.servers = [{server},...]
+	
+	def has_permission(self,permission)
+
+HTTPRequest:
+	
+
+Server:
+	
+	
