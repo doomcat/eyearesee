@@ -19,8 +19,8 @@ def restart():
 	global __instances
 	__instances = []
 
-def event(connection, type, user, server, channel, nicks, data):
+def event(connection, type, user, server, channel, nicks, data, master=True):
 	for handler in getInstances():
 		handler.event(connection, type, user,
-			server, channel, nicks, data)
+			server, channel, nicks, data, master)
 

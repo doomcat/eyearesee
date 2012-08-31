@@ -38,10 +38,14 @@ import eyearelib.database as db
 import eyearelib.permissions as permissions
 for user in ADMINS:
 	u = db.get('users',{'user': user})
-	u.flags = u.flags|permissions.ADMIN
-	db.set('users',u)
+	if u != None:
+		eyearelib.logger.i("Making %s an admin",user)
+		u.flags = u.flags|permissions.ADMIN
+		db.set('users',u)
 for user in READ_ONLY:
 	u = db.get('users',{'user': user})
-	u.flags = u.flags|(!permissions.WRITE)
-	db.set('users',u)
+	if u != None:
+		eyearelib.logger.i("Making %s a read-only user",user)
+		u.flags = u.flags|(not permissions.WRITE)
+		db.set('users',u)
 
