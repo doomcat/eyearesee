@@ -1,5 +1,6 @@
 import config
-from eyearelib import logger, database, events, handler
+from eyearelib import logger, database, handler
+from eyearelib.events import event
 from twisted.internet.task import LoopingCall
 import twisted.words.protocols.irc
 from twisted.internet import protocol, reactor
@@ -14,6 +15,10 @@ class UserNotConnected(Exception):
 	pass
 
 class IRCConnection(twisted.words.protocols.irc.IRCClient):
+	versionName = 'eyearesee'
+	versionNum = '0.1'
+	sourceUrl = 'https://github.com/doomcat/eyearesee'
+
 	def _get_nickname(self):
 		return self.factory.nickname
 	def _get_user(self):
@@ -73,13 +78,32 @@ class IRCConnection(twisted.words.protocols.irc.IRCClient):
 		if 'master' not in channelObj.keys(): return False
 		return channelObj['master'] == self
 
+	def _event(self,type,user=0,server=0,
+		channel=None,nicks=None,data=None,master=True):
+		if user == 0:
+			user = self.user
+		if server == 0:
+			server = self.server
+
+		event(
+			connection=self,
+			type=type,
+			user=user,
+			server=server,
+			nicks=nicks,
+			data=data,
+			master=master
+		)
+
 	def signedOn(self):
 		uid = "%s$%s" % (self.user,self.server)
 		self.pool['connections'][uid] = self
 
-		events.event(self,handler.CONNECTED,
-			self.user,self.server,
-			None,[self.nickname],None)
+		self._event(
+			type=handler.CONNECTED,
+			nicks=[self.nickname],
+			master=True
+		)
 
 		join(self.user,self.server,'#eyearesee')
 
@@ -88,22 +112,108 @@ class IRCConnection(twisted.words.protocols.irc.IRCClient):
 		cid = "%s$%s" % (self.server, channel)
 		
 		self._joinedChannel(channel)
-		events.event(self,handler.JOINED,
-			self.user,self.server,channel,
-			None,None,self._isMaster(channels[cid]))
+
+		self._event(
+			type=handler.JOINED,
+			nicks=[self.nickname],
+			channel=channel
+		)
 
 		logger.d("channels[%s] = %s",cid, channels[cid])
+
+	def left(self, channel):
+		self._leftChannel(channel)
+
+		self._event(
+			type=handler.LEFT,
+			nicks=[self.nickname],
+			channel=channel
+		)
+
+	def kickedFrom(self, channel, kicker, message):
+		self.userKicked(self.nickname, channel, kicker, message)
 
 	def privmsg(self, nick, channel, msg):
 		channels = self.pool['channels']
 		cid = "%s$%s" % (self.server, channel)
 
 		self._makeMaster(channels[cid])
-		if (channel[0] not in ['#','&']): user = self.user
-		else: user = None
-		events.event(self,handler.MESSAGE,
-			user,self.server,channel,
-			[nick], msg,self._isMaster(channels[cid]))
+
+		if msg.startswith('/me '):
+			type=handler.ACTION
+			msg=msg[3:]
+		else:
+			type=handler.MESSAGE
+
+		self._event(
+			type=type,
+			channel=channel,
+			nicks=[nick],
+			data=msg,
+			master=self._isMaster(channels[cid])
+		)
+		
+	def action(self, nick, channel, msg):
+		self.privmsg(nick, channel, "/me "+msg)
+
+	def nickChanged(self, nick):
+		self._event(
+			type=handler.RENAMED,
+			nicks=[self.nickname, nick]
+		)
+
+	def userJoined(self, nick, channel):
+		c = self.pool['channels']["%s$%s" % (self.server, channel)]
+		self._event(
+			type=handler.JOINED,
+			channel=channel,
+			nicks=[nick],
+			master=self._isMaster(c)
+		)
+
+	def userLeft(self, nick, channel):
+		c = self.pool['channels']["%s$%s" % (self.server, channel)]
+		self._event(
+			type=handler.LEFT,
+			channel=channel,
+			nicks=[nick],
+			master=self._isMaster(c)
+		)
+
+	def userKicked(self, kickee, channel, kicker, message):
+		c = self.pool['channels']["%s$%s" % (self.server, channel)]
+		self._event(
+			type=handler.KICKED,
+			channel=channel,
+			nicks=[kicker,kickee],
+			data=message,
+			master=self._isMaster(c)
+		)
+		if kickee == self.nickname:
+			self._leftChannel(channel)
+
+	def userQuit(self, nick, channel, message):
+		self._event(
+			type=handler.QUIT,
+			nicks=[nick],
+			data=message
+		)
+
+	def topicUpdated(self, nick, channel, newTopic):
+		c = self.pool['channels']["%s$%s" % (self.server, channel)]
+		self._event(
+			type=handler.TOPIC,
+			channel=channel,
+			nicks=[nick],
+			data=newTopic,
+			master=self._isMaster(c)
+		)
+
+	def userRenamed(self, oldName, newName):
+		self._event(
+			type=handler.TOPIC,
+			nicks=[oldName,newName]
+		)
 
 class IRCConnectionFactory(protocol.ClientFactory):
 
@@ -118,16 +228,25 @@ class IRCConnectionFactory(protocol.ClientFactory):
 		return p
 
 	def clientConnectionLost(self, connector, reason):
-		events.event(connector, handler.LOST_CONNECTION,
-			self.user, self.server, None, [self.nickname], reason)
+		connector._event(
+			type=handler.LOST_CONNECTION,
+			channel=None,
+			nicks=[self.nickname],
+			data=reason
+		)
 		connector.connect()
 
 	def clientConnectionFailed(self, connector, reason):
-		events.event(connector, handler.FAILED_CONNECTION,
-			self.user, self.server, None, [self.nickname], reason)
+		connector._event(
+			type=handler.FAILED_CONNECTION,
+			channel=None,
+			nicks=[self.nickname],
+			data=reason
+		)
+		connector._delMasterAll()
 
 def test():
-	events.event(None, "test","owain","localhost","null",
+	event(None, "test","owain","localhost","null",
 		["erinaceous"], "test event")
 
 def connect(user,server):
