@@ -31,6 +31,7 @@ DATABASE_HANDLER=plugins.mongodb
 # Edit these if your mongodb is on a remote server
 MONGO_HOST='localhost'
 MONGO_PORT=27017
+MONGO_DBNAME='eyearesee'
 
 # Make certain users admins or read_only
 # (so you don't have to faff around editing the database directly)

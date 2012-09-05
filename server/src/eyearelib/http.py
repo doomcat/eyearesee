@@ -1,11 +1,14 @@
 from twisted.web import server, resource
+from twisted.web.server import NOT_DONE_YET
 import json, time, sys, inspect
 import eyearelib.logger as log
 import eyearelib.permissions as perm
 import eyearelib.page
 import eyearelib.pages
+import eyearelib.database as db
 
 __instance = None
+__openConnections = {}
 
 class Root(eyearelib.page.Page):
 	isLeaf = False

@@ -7,5 +7,6 @@ __all__ = [
 	"page",
 	"pages",
 	"events",
-	"irc"
+	"irc",
+	"util"
 ]

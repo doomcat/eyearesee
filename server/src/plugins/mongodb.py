@@ -59,8 +59,13 @@ class Database:
 			port = config.MONGO_PORT
 		except AttributeError:
 			port = 27017
+		try:
+			dbname = config.MONGO_DBNAME
+		except AttributeError:
+			dbname = 'eyearesee'
+
 		self.connection = pymongo.Connection(host,port)
-		self.db = self.connection.eyearesee
+		self.db = self.connection[dbname]
 		self.users = InMemory(self.connection.eyearesee.users)
 		self.events = self.connection.eyearesee.events
 

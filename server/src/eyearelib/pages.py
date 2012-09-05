@@ -1,5 +1,6 @@
 import eyearelib.http
 import eyearelib.page as page
+import eyearelib.logger as logger
 import plugins, config, sys
 from twisted.internet import reactor, threads
 
@@ -100,5 +101,25 @@ class Topic(page.Page):
 	pass
 
 class Events(page.Page):
-	pass
+	class Wait(page.LongRequest):
+		def isReady(self, request, args, output):
+			if 'count' not in dir(request):
+				request.count = 1
+				output['payload'] = ["derpinson crusoe"]
+			else:
+				request.count += 1
+			if request.count > 10:
+				self.completed(request, args, output)
+				return True
+			logger.d("/events/wait, %d",request.count) 
+			#reactor.callLater(1, self.run, request, args, output)
+			self.data = (request, args, output)
+			return False
+
+		def process(self, request, args, output):
+			output['payload'].append(request.count)
+
+	def __init__(self):
+		page.Page.__init__(self)
+		self.putChild('wait', self.Wait())
 

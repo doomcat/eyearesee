@@ -1,6 +1,7 @@
 import config
 import eyearelib.logger as log
 import eyearelib.handler
+from time import time
 
 __instances = []
 
@@ -20,8 +21,10 @@ def restart():
 	__instances = []
 
 def event(connection=None, type=None, user=None, server=None, channel=None,
-	nicks=None, data=None, master=True):
+	nicks=None, data=None, master=True, timestamp=None):
+	if timestamp == None:
+		timestamp = time()
 	for handler in getInstances():
-		handler.event(connection, type, user,
-			server, channel, nicks, data, master)
+		handler._event(connection, type, user,
+			server, channel, nicks, data, master, timestamp)
 
