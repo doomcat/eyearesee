@@ -111,10 +111,11 @@ class LongRequest(Page):
 		self.process(request, args, output)
 		if 'debug' in args.keys(): indent = 2
 		else: indent = 0
+		if self.waiting == True:
+			request.write(json.dumps(output))
+			request.notifyFinish()
+			request.finish()
 		return json.dumps(output, indent)
-		#request.write(json.dumps(output, indent=2))
-		#request.notifyFinish()
-		#request.finish()
 
 	def isReady(self, request, args, output):
 		return True
@@ -125,11 +126,13 @@ class LongRequest(Page):
 	def run(self, request, args, output):
 		if 'id' not in dir(request):
 			request.id = self.id
+		self.waiting = False
 		self.data = (request, args, output)
 
 		if self.isReady(request, args, output):
 			return self.completed(request, args, output)
 		else:
+			self.waiting = True
 			global __openConnections
 			conns = __openConnections
 			if args['user'] not in conns.keys():
