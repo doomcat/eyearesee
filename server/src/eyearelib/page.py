@@ -22,9 +22,9 @@ def pollWaitingConnections(user):
 	conns = connections(user)
 	log.d("connections('%s') [%d]",user,len(conns))
 	for conn in conns:
-		request, args, output = conns[conn].data
+		request, args, output = conn.data
 		log.d("%s -> %s",args['user'],output)
-		conns[conn].run(request, args, output)
+		conn.run(request, args, output)
 
 def sanitize(request):
 	args = {}
