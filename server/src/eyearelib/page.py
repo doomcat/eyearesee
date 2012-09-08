@@ -19,7 +19,7 @@ def connection(user,obj):
 	return [obj == element for element in connections(user)][0]
 
 def pollWaitingConnections(user):
-	conns = connections(user)
+	conns = set(connections(user))
 	log.d("connections('%s') [%d]",user,len(conns))
 	for conn in conns:
 		request, args, output = conn.data
