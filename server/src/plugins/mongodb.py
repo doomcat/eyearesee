@@ -47,6 +47,7 @@ class InMemory:
 			db = self.__database
 
 	save = set
+	insert = set
 		
 
 class Database:
@@ -76,7 +77,13 @@ class Database:
 			coll = self.events
 		else: raise InvalidQuery
 		try:
-			return coll.find(query)
+			output = list(coll.find(query))
+			for obj in output:
+				try:
+					del obj['_id']
+				except:
+					pass
+			return output
 		except:
 			log.trace()
 			raise InvalidQuery
@@ -92,6 +99,11 @@ class Database:
 		except:
 			log.trace()
 			raise InvalidQuery
+
+	def count(self, collection, query):
+		if collection != 'events':
+			return 0
+		return self.events.find(query).count(True)
 
 class InvalidQuery(Exception):
 	pass

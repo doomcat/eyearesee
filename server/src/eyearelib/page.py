@@ -12,7 +12,7 @@ def connections(user):
 	try:
 		return _LongRequest__openConnections[user]
 	except KeyError:
-		_LongRequest__openConnections[user] = []
+		_LongRequest__openConnections[user] = set()
 		return _LongRequest__openConnections[user]
 
 def connection(user,obj):
@@ -22,9 +22,9 @@ def pollWaitingConnections(user):
 	conns = connections(user)
 	log.d("connections('%s') [%d]",user,len(conns))
 	for conn in conns:
-		request, args, output = conn.data
+		request, args, output = conns[conn].data
 		log.d("%s -> %s",args['user'],output)
-		conn.run(request, args, output)
+		conns[conn].run(request, args, output)
 
 def sanitize(request):
 	args = {}
@@ -88,7 +88,9 @@ class Page(resource.Resource):
 		
 		if status == server.NOT_DONE_YET:
 			return server.NOT_DONE_YET
-		return json.dumps(output, indent=2)		
+		if 'debug' in args.keys():
+			return json.dumps(output,indent=2)
+		return json.dumps(output,separators=(',', ':'))		
 
 	def run(self, request, args, output):
 		output['payload'] = ["default Page does nothing"]
@@ -96,12 +98,23 @@ class Page(resource.Resource):
 class LongRequest(Page):
 	data = {}	
 
+	def __init__(self):
+		Page.__init__(self)
+		self.id = hash(self)
+
 	def completed(self, request, args, output):
+		userConns = connections(args['user'])
+		try:
+			userConns.discard(self)
+		except:
+			log.trace()
 		self.process(request, args, output)
-		request.write(json.dumps(output, indent=2))
-		request.finish()
-		request.notifyFinish()
-		connections(args['user']).remove(self)
+		if 'debug' in args.keys(): indent = 2
+		else: indent = 0
+		return json.dumps(output, indent)
+		#request.write(json.dumps(output, indent=2))
+		#request.notifyFinish()
+		#request.finish()
 
 	def isReady(self, request, args, output):
 		return True
@@ -110,16 +123,19 @@ class LongRequest(Page):
 		pass
 
 	def run(self, request, args, output):
+		if 'id' not in dir(request):
+			request.id = self.id
 		self.data = (request, args, output)
+
 		if self.isReady(request, args, output):
 			return self.completed(request, args, output)
 		else:
 			global __openConnections
 			conns = __openConnections
 			if args['user'] not in conns.keys():
-				conns[args['user']] = [self]
+				conns[args['user']] = set(self)
 			else:
-				conns[args['user']].append(self)
+				conns[args['user']].add(self)
 
 			return server.NOT_DONE_YET
 

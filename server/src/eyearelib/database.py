@@ -17,8 +17,12 @@ def restart():
 	__instance = None
 
 def get(collection, query):
-	getInstance().get(collection, query)
+	return getInstance().get(collection, query)
+
+find = get
 
 def set(collection, query):
 	getInstance().set(collection, query)
 
+def count(collection, query):
+	return getInstance().count(collection, query)
