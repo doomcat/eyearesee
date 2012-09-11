@@ -15,6 +15,7 @@ HTTP_PORT=8081			# Port to listen for HTTP requests on
 GIT_AUTOUPDATE=True		# Whether to reload pages/config/plugins
 				# when git origin has been updated (and git
 				# hooks called)
+GIT_REPO="/root/eyearesee"	# Where the eyearesee repo is on your system
 
 ADMINS=["owain","git"]		# Users who can run /api/admin/... requests
 READ_ONLY=["eyearesee","git"]	# Users who can't send messages on IRC

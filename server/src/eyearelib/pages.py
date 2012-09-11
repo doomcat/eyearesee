@@ -6,7 +6,7 @@ import plugins, config, sys
 from urllib2 import unquote
 import json
 from twisted.internet import reactor, threads
-from os import system
+from os import system, getcwd
 
 class Admin(page.Page):
 	needsAdmin = True
@@ -15,10 +15,14 @@ class Admin(page.Page):
 		needsAdmin = False
 		needsAuth = False
 		def run(self, request, args, output):
-			logger.i("github repo updated, pulling...")
-			system("cd %s; git pull" % config.GIT_REPO)
-			logger.i("called git, reloading...")
-			Admin.Reload.All().run(request,args,output)
+			if dir(config.GIT_AUTOUPDATE)\
+			and config.GIT_AUTOUPDATE == True\
+			and dir(config.GIT_REPO):
+				logger.i("github repo updated, pulling...")
+				system("%s/update-git.sh" % config.GIT_REPO)
+				logger.i("called git, reloading...")
+				Admin.Reload.All().run(request,args,output)
+				output['payload'] = ["reloaded git"]
 
 	class Reload(page.Page):
 		class All(page.Page):
