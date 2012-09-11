@@ -103,19 +103,17 @@ class LongRequest(Page):
 		self.id = hash(self)
 
 	def completed(self, request, args, output):
-		userConns = connections(args['user'])
-		try:
-			userConns.discard(self)
-		except:
-			log.trace()
 		self.process(request, args, output)
-		if 'debug' in args.keys(): indent = 2
-		else: indent = 0
+		if 'debug' in args.keys():
+			strout = json.dumps(output, indent=2)
+		else:
+			strout = json.dumps(output, separators=(',', ':'))
 		if self.waiting == True:
-			request.write(json.dumps(output))
+			connections(args['user']).discard(self)
+			request.write(strout)
 			request.notifyFinish()
 			request.finish()
-		return json.dumps(output, indent)
+		return strout
 
 	def isReady(self, request, args, output):
 		return True

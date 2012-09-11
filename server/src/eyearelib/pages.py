@@ -6,9 +6,19 @@ import plugins, config, sys
 from urllib2 import unquote
 import json
 from twisted.internet import reactor, threads
+from os import system
 
 class Admin(page.Page):
 	needsAdmin = True
+
+	class GitUpdate(page.Page):
+		needsAdmin = False
+		needsAuth = False
+		def run(self, request, args, output):
+			logger.i("github repo updated, pulling...")
+			system("cd %s; git pull" % config.GIT_REPO)
+			logger.i("called git, reloading...")
+			Admin.Reload.All().run(request,args,output)
 
 	class Reload(page.Page):
 		class All(page.Page):
@@ -60,6 +70,7 @@ class Admin(page.Page):
 	def __init__(self):
 		page.Page.__init__(self)
 		self.putChild('reload', self.Reload())
+		self.putChild('git-update', self.GitUpdate())
 
 class World(page.Page):
 	isLeaf = True
