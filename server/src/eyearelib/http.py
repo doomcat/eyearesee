@@ -16,6 +16,11 @@ class Root(eyearelib.page.Page):
 	needsAuth = False
 	needsAdmin = False
 
+	def run(self,request,args,output):
+		if 'uri' in args.keys():
+			request.redirect(args['uri'])
+			request.finish()
+
 	def __init__(self):
 		log.d("Creating a new instance of http.Root...")
 		eyearelib.page.Page.__init__(self)
