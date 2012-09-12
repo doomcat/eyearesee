@@ -8,5 +8,5 @@ $("#input").submit(function() {
 });
 $("#submit_button").mousedown(function() {
 	$("#query").text('');
-	$("#query").text($("#input").serialize();
+	$("#query").text($("#input").serialize());
 });
