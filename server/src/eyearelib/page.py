@@ -48,7 +48,8 @@ class Page(resource.Resource):
 
 	def render_GET(self, request):
 		args = sanitize(request)
-		request.setHeader("content-type", "application/json")
+		request.setHeader('Content-Type', 'application/json')
+		request.setHeader('Connection', 'Keep-Alive')
 		return self.validate(request, args)
 		
 	render_POST = render_GET	

@@ -57,3 +57,7 @@ Sun Sep  9 02:14:52 [conn13] end connection 127.0.0.1:44002
 Sun Sep  9 05:14:09 [initandlisten] connection accepted from 127.0.0.1:35097 #14
 Wed Sep 12 02:24:16 [conn14] query eyearesee.$cmd ntoreturn:1 command: { count: "events", query: { user: "owain" }, fields: null } reslen:64 176ms
 Wed Sep 12 02:37:23 [conn14] end connection 127.0.0.1:35097
+Wed Sep 12 02:53:15 [initandlisten] connection accepted from 127.0.0.1:55032 #15
+Wed Sep 12 02:53:17 [conn15] insert eyearesee.events 205ms
+Wed Sep 12 04:12:35 [conn15] end connection 127.0.0.1:55032
+Wed Sep 12 04:12:45 [initandlisten] connection accepted from 127.0.0.1:59730 #16
