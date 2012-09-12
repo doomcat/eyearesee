@@ -29,11 +29,29 @@
 		<label>URI: <select name="uri" />
 			<option>events</option>
 			<option>events/wait</option>
-			<option>message</option>			
+			<option>message</option>
+			<option>connect</option>
+			<option>disconnect</option>
+			<option>join</option>
+			<option>part</option>
+			<option>register</option>
+			<option>auth</option>
+			<option>permissions</option>
+			<option>kick</option>			
 		</select></label><br />
 		<hr />
-		<label>Query:
-			<textarea name="query"></textarea>
+		<label>servers: <input type="text" name="servers" /></label><br />
+		<label>channels: <input type="text" name="channels" /></label><br />
+		<label>since: <input type="text" name="since" /></label><br />
+		<label>before: <input type="text" name="before" /></label><br />
+		<label>limit: <input type="text" name="limit" /></label><br />
+		<label>ignore: <input type="text" name="ignore" /></label><br />
+		<label>filter: <input type="text" name="filter" /></label><br />
+		<label>highlight: <input type="text" name="highlight" /></label><br />
+		<label>nicks: <input type="text" name="nicks" /></label><br />
+		<hr />
+		<label>Data:
+			<textarea name="data"></textarea>
 		</label>
 		<p><input type="submit" value="Run" /></p>
 		<input type="hidden" name="debug" value="true" />

@@ -22,3 +22,5 @@ eyearebin.zip
 
 # vim .swp files
 *.swp
+
+update-git.sh
