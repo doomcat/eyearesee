@@ -53,8 +53,12 @@
 		<label>Data:
 			<textarea name="data"></textarea>
 		</label>
-		<p><input type="submit" value="Run" /></p>
+		<p><input id="submit_button" type="submit" value="Run" /></p>
 		<input type="hidden" name="debug" value="true" />
+
+		<label>HTTP GET Query string:
+			<textarea id="query"></textarea>
+		</label>
 	</form>
 
         <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.0/jquery.min.js"></script>

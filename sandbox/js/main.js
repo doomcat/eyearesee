@@ -6,3 +6,7 @@ $("#input").submit(function() {
 	}, 'text');
 	return false;
 });
+$("#submit_button").mousedown(function() {
+	$("#query").text('');
+	$("#query").text($("#input").serialize();
+});
