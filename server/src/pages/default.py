@@ -66,6 +66,11 @@ class Events(page.Page):
 			logger.d("query = %s",json.loads(query))
 			output['payload'] =\
 				list(db.find('events',json.loads(query)))
+			for item in output['payload']:
+				try:
+					del item['user']
+				except:
+					pass
 
 	def __init__(self):
 		page.Page.__init__(self)
