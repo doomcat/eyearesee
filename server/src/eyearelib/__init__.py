@@ -1,11 +1,10 @@
 __all__ = [
+	"logger",
 	"defs",
 	"permissions",
 	"user",
-	"logger",
 	"http",
 	"page",
-	"pages",
 	"events",
 	"irc",
 	"util"

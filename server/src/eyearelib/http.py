@@ -4,8 +4,9 @@ import json, time, sys, inspect
 import eyearelib.logger as log
 import eyearelib.permissions as perm
 import eyearelib.page
-import eyearelib.pages
 import eyearelib.database as db
+import pkgutil
+import pages
 
 __instance = None
 __openConnections = {}
@@ -19,14 +20,19 @@ class Root(eyearelib.page.Page):
 		log.d("Creating a new instance of http.Root...")
 		eyearelib.page.Page.__init__(self)
 
-	def restart(self):
-		reload(eyearelib.pages)
-		for name, page in inspect.getmembers(
-			eyearelib.pages, inspect.isclass):
+	def registerModule(self, module):
+		for name, page in inspect.getmembers(module, inspect.isclass):
 			if 'Page' in [obj.__name__ for obj in page.__bases__]:
 				self.putChild(name.lower(), page())
-				log.d("%s registered at /%s",
-					name, name.lower())
+				log.d("%s registered at /%s",name,name.lower())
+
+	def restart(self):
+		reload(pages)
+		for mname in pages.__all__:
+			exec "import pages.%s" % mname
+			exec "reload(pages.%s)" % mname
+			exec "eyearelib.http.getInstance().pages"\
+				+".registerModule(pages.%s)" % mname
 
 def getInstance():
 	global __instance
