@@ -7,6 +7,7 @@ import eyearelib.page
 import eyearelib.database as db
 import pkgutil
 import pages
+from urllib2 import unquote
 
 __instance = None
 __openConnections = {}
@@ -18,7 +19,7 @@ class Root(eyearelib.page.Page):
 
 	def run(self,request,args,output):
 		if 'uri' in args.keys():
-			request.redirect(args['uri'])
+			request.redirect('./%s' % unquote(args['uri']))
 			request.finish()
 
 	def __init__(self):
