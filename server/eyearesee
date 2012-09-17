@@ -2,4 +2,4 @@
 from sys import path
 path.insert(0, 'eyearebin.zip')
 
-import main
+__import__('main').main()
