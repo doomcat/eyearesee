@@ -21,19 +21,47 @@
         <![endif]-->
 
 	<pre class="panel left" id="output">
-<?php echo file_get_contents("http://eyearesee.in/api/events/wait?user=owain&token=test&query={%22user%22%3A%20%22owain%22%2C%20%22time%22%3A%20{%20%22%24gt%22%3A%200%20}%20}&debug=1"); ?>
 	</pre>
 
 	<form class="panel right" id="input">
 		<label>User: <input type="text" name="user" /></label><br />
 		<label>Token: <input type="text" name="token" /></label><br />
-		<label>URI: <input type="text" name="uri" /></label><br />
+		<label>URI: <select name="uri" />
+			<option>events</option>
+			<option>events/wait</option>
+			<option>message</option>
+			<option>connect</option>
+			<option>disconnect</option>
+			<option>join</option>
+			<option>part</option>
+			<option>register</option>
+			<option>auth</option>
+			<option>permissions</option>
+			<option>kick</option>			
+		</select></label><br />
 		<hr />
-		<label>Query:
-			<textarea name="query"></textarea>
+		<label>servers: <input type="text" name="servers" /></label><br />
+		<label>channels: <input type="text" name="channels" /></label><br />
+		<label>since: <input type="text" name="since" /></label><br />
+		<label>before: <input type="text" name="before" /></label><br />
+		<label>limit: <input type="text" name="limit" /></label><br />
+		<label>ignore: <input type="text" name="ignore" /></label><br />
+		<label>filter: <input type="text" name="filter" /></label><br />
+		<label>highlight: <input type="text" name="highlight" /></label><br />
+		<label>nicks: <input type="text" name="nicks" /></label><br />
+		<label>pass: <input type="password" name="pass" /></label><br />
+		<label>email: <input type="email" name="email" /></label><br />
+		<label>read_only: <input type="checkbox" name="read_only" value="true" /></label><br />
+		<hr />
+		<label>Data:
+			<textarea name="data"></textarea>
 		</label>
-		<p><input type="submit" value="Run" /></p>
+		<p><input id="submit_button" type="submit" value="Run" /></p>
 		<input type="hidden" name="debug" value="true" />
+
+		<label>HTTP GET Query string:
+			<textarea id="query"></textarea>
+		</label>
 	</form>
 
         <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.0/jquery.min.js"></script>
