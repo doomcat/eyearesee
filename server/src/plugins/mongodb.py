@@ -18,12 +18,16 @@ class InMemory:
 		self.__database = []
 		self.__users = {}
 		for item in mongoDB.find():
-			self.__database.append(item)
-			self.__users[item['user']] = item
+			try:
+				self.__users[item['user']] = item
+				self.__database.append(item)
+			except KeyError:
+				pass
 
 	def find(self,query):
 		out = []
-		if query['user'] in self.__users.keys():
+		if 'user' in query.keys()\
+		and query['user'] in self.__users.keys():
 			db = [self.__users[query['user']]]
 		else:
 			db = self.__database
@@ -36,7 +40,8 @@ class InMemory:
 				elif item[key] != query[key]:
 					skip_item = True
 					break
-			out.append(item)
+			if skip_item == False:
+				out.append(item)
 		return out
 
 	def set(self, query):
@@ -80,6 +85,14 @@ class Database:
 			output = list(coll.find(query))
 			for obj in output:
 				try:
+					for key in obj:
+						o = obj[key]
+						if type(o) == 'unicode':
+							obj[key] = str(
+								o.encode(
+								'utf16',
+								'replace'
+							))
 					del obj['_id']
 				except:
 					pass
@@ -101,9 +114,12 @@ class Database:
 			raise InvalidQuery
 
 	def count(self, collection, query):
-		if collection != 'events':
-			return 0
+		if collection == 'users':
+			return len(self.users.find(query))
 		return self.events.find(query).count(True)
+
+	def exists(self, collection, query):
+		return self.count(collection, query) > 0
 
 class InvalidQuery(Exception):
 	pass

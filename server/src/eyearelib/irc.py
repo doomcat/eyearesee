@@ -28,11 +28,15 @@ class IRCConnection(twisted.words.protocols.irc.IRCClient):
 	def _get_pool(self):
 		global pool
 		return pool
+	def _get_saved_channels(self):
+		return self.factory.channels
+
 	nickname = property(_get_nickname)
 	user = property(_get_user)
 	server = property(_get_server)
 	pool = property(_get_pool)
 	channels = set()
+	savedChannels = property(_get_saved_channels)
 	_namescallback = {}
 
 	def _joinedChannel(self,channel):
@@ -131,7 +135,10 @@ class IRCConnection(twisted.words.protocols.irc.IRCClient):
 			master=True
 		)
 
-		join(self.user,self.server,'#eyearesee')
+		#join(self.user,self.server,'#eyearesee')
+		for channel in self.savedChannels:
+			channel = str(channel.replace('ascii','ignore'))
+			join(self.user, self.server, channel)
 
 	def joined(self, channel):
 		self._joinedChannel(channel)
@@ -303,10 +310,11 @@ class IRCConnection(twisted.words.protocols.irc.IRCClient):
 
 class IRCConnectionFactory(protocol.ClientFactory):
 
-	def __init__(self, user, server):
+	def __init__(self, user, server, channels=[]):
 		self.user = user
 		self.nickname = user
 		self.server = server
+		self.channels = channels
 
 	def buildProtocol(self, addr):
 		p = IRCConnection()
@@ -335,15 +343,16 @@ def test():
 	event(None, "test","owain","localhost","null",
 		["erinaceous"], "test event")
 
-def connect(user,server):
+def connect(user,server,channels=[]):
 	global pool
+	user = str(user.encode('ascii','ignore'))
 	connections = pool['connections']
 	id = "%s$%s" % (user,server)
 	if id not in connections.keys():
 		addr,port = server.split(':')
 		logger.d("Connecting to %s, port %s as %s",addr,port,user)
 		connections[id] = reactor.connectTCP(addr, int(port),
-			IRCConnectionFactory(user, server))
+			IRCConnectionFactory(user, server, channels))
 
 def join(user,server,channel):
 	global pool

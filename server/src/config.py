@@ -19,10 +19,14 @@ GIT_REPO="/root/eyearesee"	# Where the eyearesee repo is on your system
 
 ADMINS=["owain","git"]		# Users who can run /api/admin/... requests
 READ_ONLY=["eyearesee","git"]	# Users who can't send messages on IRC
+				# Note: these are just a shortcut for when you
+				# don't want to edit a database. Each user has
+				# a 'permissions' flag in the database which
+				# dictates their access/read/write privileges.
 
 import plugins.funkyhandler
 EVENT_HANDLERS=[
-	plugins.funkyhandler,
+	plugins.funkyhandler
 ]
 
 import plugins.mongodb
@@ -39,14 +43,16 @@ MONGO_DBNAME='eyearesee'
 import eyearelib.database as db
 import eyearelib.permissions as permissions
 for user in ADMINS:
-	u = db.get('users',{'user': user})[0]
-	if u != None:
+	u = db.get('users',{'user': user})
+	if len(u) > 0:
+		u = u[0]
 		eyearelib.logger.i("Making %s an admin",user)
 		u['permissions'] = u['permissions']|permissions.ADMIN
 		db.set('users',u)
 for user in READ_ONLY:
-	u = db.get('users',{'user': user})[0]
-	if u != None:
+	u = db.get('users',{'user': user})
+	if len(u) > 0:
+		u = u[0]
 		eyearelib.logger.i("Making %s a read-only user",user)
 		u['permissions'] = u['permissions']|(not permissions.WRITE)
 		db.set('users',u)

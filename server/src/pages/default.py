@@ -27,10 +27,20 @@ class Part(page.Page):
 	pass
 
 class Register(page.Page):
-	pass
+	needsAuth = False
+	needs = ['user', 'pass', 'email', 'read_only']
+
+	def run(self, request, args, output):
+		if db.exists('users',args['user']) == False:
+			# insert into database
+			pass
+		else:
+			output['status'] = 7
+			output['payload'] = ["user already exists"]
 
 class Auth(page.Page):
-	pass
+	needsAuth = False
+	needs = ['user', 'pass']
 
 class Message(page.Page):
 	pass

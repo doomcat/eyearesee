@@ -26,3 +26,6 @@ def set(collection, query):
 
 def count(collection, query):
 	return getInstance().count(collection, query)
+
+def exists(collection, query):
+	return getInstance().exists(collection, query)
