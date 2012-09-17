@@ -31,7 +31,7 @@ class Register(page.Page):
 	needs = ['user', 'pass', 'email', 'read_only']
 
 	def run(self, request, args, output):
-		if db.exists('users',args['user']) == False:
+		if db.exists('users',{'user': args['user']}) == False:
 			# insert into database
 			pass
 		else:
