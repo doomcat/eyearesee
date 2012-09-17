@@ -1,7 +1,7 @@
 $("#input").submit(function() {
 	uri = $("select[name=uri]").val();
 	$("#output").text('');
-	data = $("#input").serialize()
+	data = $("#input").serialize();
 	$.post("/api/"+uri, clean_data(data),
 		function(data) {
 			$("#output").text(data);
@@ -11,7 +11,8 @@ $("#input").submit(function() {
 });
 
 function clean_data(data) {
-	return data.replace(/[^&]+=\.?(?:&|$)/g, '')
+	return data.replace(/[^&]+=\.?(?:&|$)/g, '');
+}
 
 $("#submit_button").mousedown(function() {
 	$("#query").text('');
