@@ -1,5 +1,0 @@
-#!/usr/bin/pypy -OO
-from sys import path
-path.insert(0, 'eyearebin.zip')
-
-__import__('main').main()
