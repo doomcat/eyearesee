@@ -1,4 +1,4 @@
 __all__ = [
-	"default",
-	"admin"
+    "default",
+    "admin"
 ]

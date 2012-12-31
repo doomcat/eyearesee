@@ -21,17 +21,17 @@ CHANNEL_NICKS = [14, "channel_nicks"]
 
 
 class Handler:
-	def __init__(self):
-		log.d("Registered %s for IRC events", self.__class__)
+    def __init__(self):
+        log.d("Registered %s for IRC events", self.__class__)
 
-	def _event(self,connection,type,user,server,channel,nicks,data,
-	master=True,timestamp=time()):
-		try:
-			getattr(self, type[1])(connection,user,server,channel,
-				nicks,data,master,timestamp)
-		except AttributeError:
-			self.event(connection,type,user,server,channel,nicks,
-				data,master,timestamp)
-		finally:
-			pass
+    def _event(self,connection,type,user,server,channel,nicks,data,
+    master=True,timestamp=time()):
+        try:
+            getattr(self, type[1])(connection,user,server,channel,
+                nicks,data,master,timestamp)
+        except AttributeError:
+            self.event(connection,type,user,server,channel,nicks,
+                data,master,timestamp)
+        finally:
+            pass
 
