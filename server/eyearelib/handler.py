@@ -32,6 +32,7 @@ class Handler:
         except AttributeError:
             self.event(connection,type,user,server,channel,nicks,
                 data,master,timestamp)
-        finally:
-            pass
+        except AttributeError:
+            log.i("%s has no way of handling %s events" %\
+                (self.__class__, type))
 

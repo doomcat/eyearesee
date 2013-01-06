@@ -12,6 +12,7 @@ def getInstance():
         __instance = Database()
     return __instance
 
+
 class InMemory:
     def __init__(self, mongoDB):
         log.d("Copying in-memory version of mongodb 'users' table")
@@ -46,10 +47,13 @@ class InMemory:
 
     def set(self, query):
         # TODO finish this!
-        if query['user'] in self.__users.keys():
-            db = [self.__users[query['user']]]
-        else:
-            db = self.__database
+        exists = False
+        for item in self.__database:
+            if item['user'] == query['user']:
+                item = query
+                exists = True
+        if exists == False:
+            self.__database.append(query)
 
     save = set
     insert = set
@@ -120,6 +124,7 @@ class Database:
 
     def exists(self, collection, query):
         return self.count(collection, query) > 0
+
 
 class InvalidQuery(Exception):
     pass
