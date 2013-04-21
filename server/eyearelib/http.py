@@ -9,15 +9,17 @@ import pkgutil
 import pages
 from urllib2 import unquote
 
+
 __instance = None
 __openConnections = {}
+
 
 class Root(eyearelib.page.Page):
     isLeaf = False
     needsAuth = False
     needsAdmin = False
 
-    def run(self,request,args,output):
+    def run(self, request, args, output):
         if 'uri' in args.keys():
             request.redirect('./%s' % unquote(args['uri']))
             request.finish()
@@ -30,7 +32,7 @@ class Root(eyearelib.page.Page):
         for name, page in inspect.getmembers(module, inspect.isclass):
             if 'Page' in [obj.__name__ for obj in page.__bases__]:
                 self.putChild(name.lower(), page())
-                log.d("%s registered at /%s",name,name.lower())
+                log.d("%s registered at /%s", name, name.lower())
 
     def restart(self):
         reload(pages)
@@ -38,13 +40,15 @@ class Root(eyearelib.page.Page):
             exec "import pages.%s" % mname
             exec "reload(pages.%s)" % mname
             exec "eyearelib.http.getInstance().pages"\
-                +".registerModule(pages.%s)" % mname
+                 + ".registerModule(pages.%s)" % mname
+
 
 def getInstance():
     global __instance
-    if __instance == None:
+    if __instance is None:
         __instance = newInstance()
     return __instance
+
 
 def newInstance():
     global __instance
@@ -54,8 +58,9 @@ def newInstance():
     pages.restart()
     return __instance
 
+
 def reloadPages():
     log.d("Calling reloadPages()")
     global __instance
-    if __instance != None:
+    if __instance is not None:
         __instance.pages.restart()

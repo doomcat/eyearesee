@@ -24,15 +24,14 @@ class Handler:
     def __init__(self):
         log.d("Registered %s for IRC events", self.__class__)
 
-    def _event(self,connection,type,user,server,channel,nicks,data,
-    master=True,timestamp=time()):
+    def _event(self, connection, type, user, server, channel, nicks, data,
+               master=True, timestamp=time()):
         try:
-            getattr(self, type[1])(connection,user,server,channel,
-                nicks,data,master,timestamp)
+            getattr(self, type[1])(connection, user, server, channel,
+                                   nicks, data, master, timestamp)
         except AttributeError:
-            self.event(connection,type,user,server,channel,nicks,
-                data,master,timestamp)
+            self.event(connection, type, user, server, channel, nicks,
+                       data, master, timestamp)
         except AttributeError:
-            log.i("%s has no way of handling %s events" %\
-                (self.__class__, type))
-
+            log.i("%s has no way of handling %s events" %
+                  (self.__class__, type))

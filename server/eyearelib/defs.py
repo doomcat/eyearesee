@@ -4,4 +4,3 @@ class Logger:
     INFO = 2
     DEBUG = 1
     SPAM = 0
-

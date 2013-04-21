@@ -11,8 +11,10 @@ pool = {
     "channels": {}
 }
 
+
 class UserNotConnected(Exception):
     pass
+
 
 class IRCConnection(twisted.words.protocols.irc.IRCClient):
     versionName = 'eyearesee'
@@ -21,13 +23,17 @@ class IRCConnection(twisted.words.protocols.irc.IRCClient):
 
     def _get_nickname(self):
         return self.factory.nickname
+
     def _get_user(self):
         return self.factory.user
+
     def _get_server(self):
         return self.factory.server
+
     def _get_pool(self):
         global pool
         return pool
+
     def _get_saved_channels(self):
         return self.factory.channels
 
@@ -39,9 +45,8 @@ class IRCConnection(twisted.words.protocols.irc.IRCClient):
     savedChannels = property(_get_saved_channels)
     _namescallback = {}
 
-    def _joinedChannel(self,channel):
-        channels = self.pool['channels']    
-        #cid = "%s$%s" % (self.server, channel)
+    def _joinedChannel(self, channel):
+        channels = self.pool['channels']
         cid = self._getChannelHash(channel)
         if cid in channels.keys():
             channels[cid][self.user] = self
@@ -50,53 +55,53 @@ class IRCConnection(twisted.words.protocols.irc.IRCClient):
         self._makeMaster(channels[cid])
         self.channels.add(channel)
 
-    def _makeMaster(self,channelObj):
+    def _makeMaster(self, channelObj):
         if 'master' not in channelObj.keys()\
-        or channelObj['master'] == None:
-            logger.d("Made %s master for %s",self,channelObj)
+        or channelObj['master'] is None:
+            logger.d("Made %s master for %s", self, channelObj)
             channelObj['master'] = self
             return True
         return False
 
     def _makeMasterAll(self):
         for channel in self.channels:
-            #cid = "%s$%s" % (self.server, channel)
             cid = self._getChannelHash(channel)
             if cid in self.pool['channels'].keys():
                 self._makeMaster(self.pool['channels'][cid])
 
-    def _delMaster(self,channelObj):
+    def _delMaster(self, channelObj):
         if 'master' in channelObj.keys():
-            logger.d("Removed master for %s",channelObj)
+            logger.d("Removed master for %s", channelObj)
             channelObj['master'] = None
 
     def _delMasterAll(self):
         for channel in self.channels:
-            #cid = "%s$%s" % (self.server, channel)
             cid = self._getChannelHash(channel)
             if cid in self.pool['channels'].keys():
                 self._delMaster(self.pool['channels'][cid])
 
-    def _leftChannel(self,channel):
+    def _leftChannel(self, channel):
         channels = self.pool['channels']
-        #cid = "%s$%s" % (self.server, channel)
         cid = self._getChannelHash(channel)
-        if cid not in channels.keys(): return
+        if cid not in channels.keys():
+            return
         self._delMaster(channels[cid])
         self.channels.remove(channel)
 
-    def _isMaster(self,channelObj):
-        if channelObj == None: return True
-        if 'master' not in channelObj.keys(): return True
+    def _isMaster(self, channelObj):
+        if channelObj is None:
+            return True
+        if 'master' not in channelObj.keys():
+            return True
         return channelObj['master'] == self
 
-    def _event(self,type,user=0,server=0,
-        channel=None,nicks=None,data=None,master=0):
+    def _event(self, type, user=0, server=0,
+               channel=None, nicks=None, data=None, master=0):
         if user == 0:
             user = self.user
         if server == 0:
             server = self.server
-        if master == 0 and channel != None:
+        if master == 0 and channel is not None:
             master = self._isMaster(self._getChannel(channel))
 
         event(
@@ -110,14 +115,14 @@ class IRCConnection(twisted.words.protocols.irc.IRCClient):
             master=master
         )
 
-    def _getChannel(self,channel):
+    def _getChannel(self, channel):
         try:
             cid = self._getChannelHash(channel)
             return self.pool['channels'][cid]
         except KeyError:
             return None
 
-    def _getChannelHash(self,channel):
+    def _getChannelHash(self, channel):
         if channel.startswith('#') or channel.startswith('&'):
             prefix = 'chan'
             channel = channel[1:]
@@ -126,7 +131,7 @@ class IRCConnection(twisted.words.protocols.irc.IRCClient):
         return "%s$%s_%s" % (self.server, prefix, channel)
 
     def signedOn(self):
-        uid = "%s$%s" % (self.user,self.server)
+        uid = "%s$%s" % (self.user, self.server)
         self.pool['connections'][uid] = self
 
         self._event(
@@ -137,7 +142,7 @@ class IRCConnection(twisted.words.protocols.irc.IRCClient):
 
         #join(self.user,self.server,'#eyearesee')
         for channel in self.savedChannels:
-            channel = str(channel.replace('ascii','ignore'))
+            channel = str(channel.replace('ascii', 'ignore'))
             join(self.user, self.server, channel)
 
     def joined(self, channel):
@@ -171,10 +176,10 @@ class IRCConnection(twisted.words.protocols.irc.IRCClient):
             master = True
 
         if msg.startswith('/me '):
-            type=handler.ACTION
-            msg=msg[4:]
+            type = handler.ACTION
+            msg = msg[4:]
         else:
-            type=handler.MESSAGE
+            type = handler.MESSAGE
 
         self._event(
             type=type,
@@ -183,7 +188,7 @@ class IRCConnection(twisted.words.protocols.irc.IRCClient):
             data=msg,
             master=master
         )
-        
+
     def action(self, nick, channel, msg):
         self.privmsg(nick, channel, "/me "+msg)
 
@@ -195,7 +200,7 @@ class IRCConnection(twisted.words.protocols.irc.IRCClient):
             twisted.words.protocols.irc.IRCClient.msg(
                 self, user, message, length)
         if self._isMaster(self._getChannel(user)):
-            self.privmsg(self.nickname, user, message)        
+            self.privmsg(self.nickname, user, message)
 
     def nickChanged(self, nick):
         self._event(
@@ -222,7 +227,7 @@ class IRCConnection(twisted.words.protocols.irc.IRCClient):
         self._event(
             type=handler.KICKED,
             channel=channel,
-            nicks=[kicker,kickee],
+            nicks=[kicker, kickee],
             data=message,
         )
         if kickee == self.nickname:
@@ -246,20 +251,20 @@ class IRCConnection(twisted.words.protocols.irc.IRCClient):
     def userRenamed(self, oldName, newName):
         self._event(
             type=handler.TOPIC,
-            nicks=[oldName,newName]
+            nicks=[oldName, newName]
         )
 
     def modeChanged(self, nick, channel, set, modes, args):
-        if set == True:
-            modes = '+'+modes
+        if set is True:
+            modes = '+' + modes
         else:
-            modes = '-'+modes
+            modes = '-' + modes
 
         if args == (None,):
             data = [modes]
         else:
-            data = [modes,args]
-                
+            data = [modes, args]
+
         self._event(
             type=handler.PERMISSIONS,
             nicks=[nick],
@@ -282,7 +287,7 @@ class IRCConnection(twisted.words.protocols.irc.IRCClient):
         d = defer.Deferred()
         if channel not in self._namescallback:
             self._namescallback[channel] = ([], [])
-    
+
         self._namescallback[channel][0].append(d)
         self.sendLine("NAMES %s" % channel)
         return d
@@ -300,13 +305,14 @@ class IRCConnection(twisted.words.protocols.irc.IRCClient):
         channel = params[1].lower()
         if channel not in self._namescallback:
             return
-        
+
         callbacks, namelist = self._namescallback[channel]
 
         for cb in callbacks:
             cb.callback((channel, namelist))
 
         del self._namescallback[channel]
+
 
 class IRCConnectionFactory(protocol.ClientFactory):
 
@@ -339,38 +345,41 @@ class IRCConnectionFactory(protocol.ClientFactory):
         )
         connector._delMasterAll()
 
-def test():
-    event(None, "test","owain","localhost","null",
-        ["erinaceous"], "test event")
 
-def connect(user,server,channels=[]):
+def test():
+    event(None, "test", "owain", "localhost", "null",
+          ["erinaceous"], "test event")
+
+
+def connect(user, server, channels=[]):
     global pool
-    user = str(user.encode('ascii','ignore'))
+    user = str(user.encode('ascii', 'ignore'))
     connections = pool['connections']
-    id = "%s$%s" % (user,server)
+    id = "%s$%s" % (user, server)
     if id not in connections.keys():
-        addr,port = server.split(':')
-        logger.d("Connecting to %s, port %s as %s",addr,port,user)
+        addr, port = server.split(':')
+        logger.d("Connecting to %s, port %s as %s", addr, port, user)
         connections[id] = reactor.connectTCP(addr, int(port),
             IRCConnectionFactory(user, server, channels))
 
-def join(user,server,channel):
+
+def join(user, server, channel):
     global pool
     channels = pool['channels']
     connections = pool['connections']
-    uid = "%s$%s" % (user,server)
-    cid = "%s$%s" % (server,channel)
+    uid = "%s$%s" % (user, server)
+    cid = "%s$%s" % (server, channel)
     if uid not in connections.keys():
         raise UserNotConnected
-    if cid not in channels.keys() and channel[0]=='#':
+    if cid not in channels.keys() and channel[0] is '#':
         connections[uid].join(channel)
 
-def getConnection(user,server):
+
+def getConnection(user, server):
     global pool
     connections = pool['connections']
-    id = "%s$%s" % (user,server)
+    id = "%s$%s" % (user, server)
     if id in connections.keys():
         return connections[id]
     else:
         raise UserNotConnected
-

@@ -3,7 +3,9 @@ import eyearelib.logger as log
 import traceback
 import config
 
+
 __instance = None
+
 
 def getInstance():
     global __instance
@@ -25,7 +27,7 @@ class InMemory:
             except KeyError:
                 pass
 
-    def find(self,query):
+    def find(self, query):
         out = []
         if 'user' in query.keys()\
         and query['user'] in self.__users.keys():
@@ -41,7 +43,7 @@ class InMemory:
                 elif item[key] != query[key]:
                     skip_item = True
                     break
-            if skip_item == False:
+            if skip_item is False:
                 out.append(item)
         return out
 
@@ -52,12 +54,12 @@ class InMemory:
             if item['user'] == query['user']:
                 item = query
                 exists = True
-        if exists == False:
+        if exists is False:
             self.__database.append(query)
 
     save = set
     insert = set
-        
+
 
 class Database:
     def __init__(self):
@@ -74,7 +76,7 @@ class Database:
         except AttributeError:
             dbname = 'eyearesee'
 
-        self.connection = pymongo.Connection(host,port)
+        self.connection = pymongo.Connection(host, port)
         self.db = self.connection[dbname]
         self.users = InMemory(self.connection.eyearesee.users)
         self.events = self.connection.eyearesee.events
@@ -84,7 +86,8 @@ class Database:
             coll = self.users
         elif collection == 'events':
             coll = self.events
-        else: raise InvalidQuery
+        else:
+            raise InvalidQuery
         try:
             output = list(coll.find(query))
             for obj in output:
@@ -92,11 +95,7 @@ class Database:
                     for key in obj:
                         o = obj[key]
                         if type(o) == 'unicode':
-                            obj[key] = str(
-                                o.encode(
-                                'utf16',
-                                'replace'
-                            ))
+                            obj[key] = str(o.encode('utf16', 'replace'))
                     del obj['_id']
                 except:
                     pass
@@ -110,7 +109,8 @@ class Database:
             coll = self.users
         elif collection == 'events':
             coll = self.events
-        else: raise InvalidQuery
+        else:
+            raise InvalidQuery
         try:
             coll.insert(query)
         except:
@@ -128,4 +128,3 @@ class Database:
 
 class InvalidQuery(Exception):
     pass
-
